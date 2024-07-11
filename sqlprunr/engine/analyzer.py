@@ -11,6 +11,14 @@ def clean_query(query: str) -> str:
 
 
 def analyze_query(query: str, orginal_schema: typing.Optional[typing.List[Table]] = None):
+    """
+    Analyze the query and return the dimensions
+
+    :param query: Query to analyze
+    :param orginal_schema: List of tables
+
+    :return: QueryData object
+    """
     if query.count(";") > 1:
         raise ValueError("Only one query per input is supported.")
 
@@ -39,3 +47,28 @@ def analyze_query(query: str, orginal_schema: typing.Optional[typing.List[Table]
         query=query,
         dimensions=sorted_dimensions
     )
+
+
+def find_unused_columns(queries: typing.List[str], schema: typing.List[Table]):
+    """
+    Find unused columns in the schema based on the queries
+
+    :param queries: List of queries
+    :param schema: List of tables
+
+    :return: Dictionary with table name as key and set of unused columns as value
+    """
+    unused_columns_map: typing.Dict[str, typing.FrozenSet[str]] = {}
+
+    all_dimensions = [
+        dimension for query in queries for dimension in analyze_query(query, orginal_schema=schema).dimensions
+    ]
+    all_tables = set([dimension.table for dimension in all_dimensions])
+
+    for table in all_tables:
+        unused_columns = frozenset(table.columns) - set(
+            column for dimension in all_dimensions if dimension.table == table for column in dimension.used_columns
+        )
+        unused_columns_map[table.name] = unused_columns
+
+    return unused_columns_map
