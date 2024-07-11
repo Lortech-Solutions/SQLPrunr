@@ -21,7 +21,7 @@ def test_parse_single_table():
 
 def test_parse_multiple_tables():
     table = parse_table(schema)
-    assert len(table) == 7
+    assert len(table) == 8
     assert table[0].name == 'Customers'
     assert table[1].name == 'Orders'
     assert table[2].name == 'OrderDetails'
@@ -29,6 +29,7 @@ def test_parse_multiple_tables():
     assert table[4].name == 'Suppliers'
     assert table[5].name == 'Categories'
     assert table[6].name == 'Shippers'
+    assert table[7].name == 'UnusedTable'
     assert len(table[0].columns) == 5
     assert len(table[1].columns) == 5
     assert len(table[2].columns) == 5
@@ -36,6 +37,7 @@ def test_parse_multiple_tables():
     assert len(table[4].columns) == 5
     assert len(table[5].columns) == 4
     assert len(table[6].columns) == 4
+    assert len(table[7].columns) == 1
     assert table[1].columns[1].name == 'CustomerID'
     assert table[1].columns[2].name == 'OrderDate'
     assert table[1].columns[3].name == 'ShipperID'
@@ -64,3 +66,4 @@ def test_parse_multiple_tables():
     assert table[6].columns[1].name == 'ShipperName'
     assert table[6].columns[2].name == 'Phone'
     assert table[6].columns[3].name == 'UnusedColumn7'
+    assert table[7].columns[0].name == 'UnusedColumn'
