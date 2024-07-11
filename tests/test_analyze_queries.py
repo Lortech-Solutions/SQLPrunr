@@ -1,9 +1,9 @@
 import pytest
-from sqlprunr.data.generic import Column
+from sqlprunr.data.generic import Column, Table
 from sqlprunr.data.query_data import QueryData
 from sqlprunr.data.dimension import Dimension
 
-from sqlprunr.engine.analyzer import analyze_query, clean_query, find_unused_columns
+from sqlprunr.engine.analyzer import analyze_query, clean_query, find_unused_columns, find_unused_tables
 from sqlprunr.engine.parser import parse_table
 
 from tests.data import schema
@@ -221,3 +221,12 @@ def test_find_unused_columns():
 
     assert unused_columns_map.keys() == UNUSED_COLUMNS.keys()
     assert unused_columns_map == UNUSED_COLUMNS
+
+
+def test_find_unused_tables():
+    orginal_schema = parse_table(schema)
+
+    unused_tables = find_unused_tables(queries, orginal_schema)
+
+    assert unused_tables == {Table(name='UnusedTable', columns=[Column(name='UnusedColumn')])}
+    assert len(unused_tables) == 1
