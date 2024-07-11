@@ -10,7 +10,7 @@ def clean_query(query: str) -> str:
     return query.strip().replace("\n", " ")
 
 
-def analyze_query(query: str, orginal_schema: typing.Optional[typing.List[Table]] = None):
+def analyze_query(query: str, orginal_schema: typing.Optional[typing.List[Table]] = None) -> QueryData:
     """
     Analyze the query and return the dimensions
 
@@ -49,7 +49,7 @@ def analyze_query(query: str, orginal_schema: typing.Optional[typing.List[Table]
     )
 
 
-def find_unused_columns(queries: typing.List[str], schema: typing.List[Table]):
+def find_unused_columns(queries: typing.List[str], schema: typing.List[Table]) -> typing.Dict[str, typing.FrozenSet[str]]:
     """
     Find unused columns in the schema based on the queries
 
@@ -72,3 +72,19 @@ def find_unused_columns(queries: typing.List[str], schema: typing.List[Table]):
         unused_columns_map[table.name] = unused_columns
 
     return unused_columns_map
+
+
+def find_unused_tables(queries: typing.List[str], schema: typing.List[Table]) -> typing.Set[Table]:
+    """
+    Find unused tables in the schema based on the queries
+
+    :param queries: List of queries
+    :param schema: List of tables
+
+    :return: Set of unused tables
+    """
+    unused_tables = set(schema)
+    for dimension in [dimension for query in queries for dimension in analyze_query(query, orginal_schema=schema).dimensions]:
+        unused_tables.discard(dimension.table)
+
+    return unused_tables
