@@ -55,4 +55,8 @@ CREATE TABLE Shippers (
     Phone VARCHAR(50),
     UnusedColumn7 VARCHAR(100)
 );
+
+CREATE TABLE UnusedTable (
+    UnusedColumn INT
+);
 """
