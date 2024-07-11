@@ -1,8 +1,9 @@
 import pytest
+from sqlprunr.data.generic import Column
 from sqlprunr.data.query_data import QueryData
 from sqlprunr.data.dimension import Dimension
 
-from sqlprunr.engine.analyzer import analyze_query, clean_query
+from sqlprunr.engine.analyzer import analyze_query, clean_query, find_unused_columns
 from sqlprunr.engine.parser import parse_table
 
 from tests.data import schema
@@ -209,3 +210,14 @@ def test_analyze_query(query):
     assert result.query == clean_query(query)
     assert len(result.dimensions) > 0
 
+
+UNUSED_COLUMNS = {'Shippers': {Column(name='Phone'), Column(name='UnusedColumn7')}, 'Suppliers': {Column(name='UnusedColumn5'), Column(name='ContactName'), Column(name='Country')}, 'Customers': {Column(name='UnusedColumn1'), Column(name='ContactName')}, 'Categories': {Column(name='Description'), Column(name='UnusedColumn6')}, 'Products': {Column(name='UnusedColumn4')}, 'OrderDetails': {Column(name='UnusedColumn3')}, 'Orders': {Column(name='UnusedColumn2')}}
+
+
+def test_find_unused_columns():
+    orginal_schema = parse_table(schema)
+
+    unused_columns_map = find_unused_columns(queries, orginal_schema)
+
+    assert unused_columns_map.keys() == UNUSED_COLUMNS.keys()
+    assert unused_columns_map == UNUSED_COLUMNS
