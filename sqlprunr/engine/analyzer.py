@@ -1,90 +1,49 @@
 import typing
 from sql_metadata import Parser
-from sqlprunr.data.dimension import Dimension
-from sqlprunr.data.generic import Table, Column
-
-from sqlprunr.data.query_data import QueryData
-
+from sqlprunr.data.generic import Database, Table, Column
+from sqlprunr.data.query_data import Frequencies, QueryData
 
 def clean_query(query: str) -> str:
     return query.strip().replace("\n", " ")
 
 
-def analyze_query(query: str, orginal_schema: typing.Optional[typing.List[Table]] = None) -> QueryData:
+def analyze_query(query: str, *, execution_time: int = 0) -> dict:
     """
     Analyze the query and return the dimensions
 
     :param query: Query to analyze
-    :param orginal_schema: List of tables
-
-    :return: QueryData object
     """
     if query.count(";") > 1:
         raise ValueError("Only one query per input is supported.")
 
     query = clean_query(query)
 
-    parser = Parser(query)
+    parser = Parser(query, disable_logging=True)
 
-    tables_mapping = {}
-    for column in parser.columns:
-        table_name, column_name = column.split(".")
-        tables_mapping[table_name] = tables_mapping.get(table_name, []) + [column_name]
+    return {
+        "query_ref": query,
+        "execution_time": execution_time,
+        "tables": parser.tables,
+        "columns": parser.columns
+    }
 
-    dimensions = []
-
-    for table_name, columns in tables_mapping.items():
-        columns = [Column(name=column) for column in columns]
-
-        table = [table for table in orginal_schema if table.name == table_name][0] if orginal_schema else Table(name=table_name, columns=columns)
-        # logging.warning("Orginal schema not provided, Table in Dimension will have the same columns as in the query. (No analytics possible)")
-
-        dimensions.append(Dimension(table=table, used_columns=columns))
-
-    sorted_dimensions = sorted(dimensions, key=lambda x: x.table.name)
-
-    return QueryData(
-        query=query,
-        dimensions=sorted_dimensions
-    )
-
-
-def find_unused_columns(queries: typing.List[str], schema: typing.List[Table]) -> typing.Dict[str, typing.FrozenSet[str]]:
+def find_unused_tables(frequencies: Frequencies, database: Database) -> typing.List[Table]:
     """
-    Find unused columns in the schema based on the queries
+    Find tables that are not used in the queries
 
     :param queries: List of queries
-    :param schema: List of tables
-
-    :return: Dictionary with table name as key and set of unused columns as value
+    :param database: Database schema
     """
-    unused_columns_map: typing.Dict[str, typing.FrozenSet[str]] = {}
+    used_tables = set(frequencies.tables.items())
 
-    all_dimensions = [
-        dimension for query in queries for dimension in analyze_query(query, orginal_schema=schema).dimensions
-    ]
-    all_tables = set([dimension.table for dimension in all_dimensions])
+    unused_tables = []
+    for schema in database.schemas:
+        for table in schema.tables:
+            if table.name not in used_tables:
+                print(f"Found unused table: {database.name}.{schema.name}.{table.name} ({len(table.columns) if table.columns else 0} columns)")
+                unused_tables.append(table)
 
-    for table in all_tables:
-        unused_columns = frozenset(table.columns) - set(
-            column for dimension in all_dimensions if dimension.table == table for column in dimension.used_columns
-        )
-        unused_columns_map[table.name] = unused_columns
-
-    return unused_columns_map
-
-
-def find_unused_tables(queries: typing.List[str], schema: typing.List[Table]) -> typing.Set[Table]:
-    """
-    Find unused tables in the schema based on the queries
-
-    :param queries: List of queries
-    :param schema: List of tables
-
-    :return: Set of unused tables
-    """
-    unused_tables = set(schema)
-    for dimension in [dimension for query in queries for dimension in analyze_query(query, orginal_schema=schema).dimensions]:
-        unused_tables.discard(dimension.table)
+    print(f"Keep in mind that these tables are not used in specified queries, but they might be used in other queries.")
+    print(f"Keep in mind that tables were checked only according to the selected database schema, check if specified queries were only executed in selected database area.")
 
     return unused_tables
