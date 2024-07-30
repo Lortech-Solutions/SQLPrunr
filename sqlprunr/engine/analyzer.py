@@ -43,7 +43,7 @@ def find_unused_tables(frequencies: Frequencies, database: Database) -> typing.L
                 print(f"Found unused table: {database.name}.{schema.name}.{table.name} ({len(table.columns) if table.columns else 0} columns)")
                 unused_tables.append(table)
 
-    print(f"Keep in mind that these tables are not used in specified queries, but they might be used in other queries.")
+    print(f"Keep in mind that these tables are not used in specified queries, but they might be used in other.")
     print(f"Keep in mind that tables were checked only according to the selected database schema, check if specified queries were only executed in selected database area.")
 
     return unused_tables
