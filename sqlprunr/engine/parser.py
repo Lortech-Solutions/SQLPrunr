@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 import typing
+import logging
 
-from graphviz import Digraph
 from sql_metadata import Parser
 
 from sqlprunr.data.generic import Column, Database, Schema, Table
@@ -76,34 +76,36 @@ class SnowflakeCSVTableParser(TableParser):
             column_name = data.COLUMN_NAME
             data_type = data.DATA_TYPE
 
-            print(
+            logging.debug(
                 f"Database: {database_name}, Schema: {schema_name}, Table: {table_name}, Column: {column_name}, Data Type: {data_type}"
             )
 
             if database_name not in databases:
-                print(f"Creating database: {database_name}")
+                logging.debug(f"Creating database: {database_name}")
                 databases[database_name] = Database(database_name, [])
             database = databases[database_name]
 
             schema = next((s for s in database.schemas if s.name == schema_name), None)
             if schema is None:
-                print(f"Creating schema: {schema_name}")
+                logging.debug(f"Creating schema: {schema_name}")
                 schema = Schema(schema_name, [])
                 database.schemas.append(schema)
 
             table = next((t for t in schema.tables if t.name == table_name), None)
             if table is None:
-                print(f"Creating table: {table_name}")
+                logging.debug(f"Creating table: {table_name}")
                 table = Table(table_name, [])
                 schema.tables.append(table)
 
             if not any(c.name == column_name for c in table.columns):
-                print(f"Adding column: {column_name}")
+                logging.debug(f"Adding column: {column_name}")
                 table.columns.append(Column(column_name, data_type))
 
         return list(databases.values())
 
     def visualize_structure(self, databases: typing.List[Database]):
+        from graphviz import Digraph
+
         dot = Digraph(comment="Database Schema")
 
         for db in databases:
@@ -163,9 +165,7 @@ class SnowflakeCSVTableParser(TableParser):
         columns = []
         for query in queries:
             try:
-                z = analyze_query(
-                    query.QUERY_TEXT, execution_time=0
-                )
+                z = analyze_query(query.QUERY_TEXT, execution_time=0)
             except (ValueError, IndexError) as e:
                 continue
 
@@ -179,20 +179,14 @@ class SnowflakeCSVTableParser(TableParser):
         )
 
         frequencies.tables = dict(
-            sorted(
-                frequencies.tables.items(), key=lambda item: item[1], reverse=True
-            )
+            sorted(frequencies.tables.items(), key=lambda item: item[1], reverse=True)
         )
         frequencies.columns = dict(
-            sorted(
-                frequencies.columns.items(), key=lambda item: item[1], reverse=True
-            )
+            sorted(frequencies.columns.items(), key=lambda item: item[1], reverse=True)
         )
 
         frequencies.queries = dict(
-            sorted(
-                frequencies.queries.items(), key=lambda item: item[1], reverse=True
-            )
+            sorted(frequencies.queries.items(), key=lambda item: item[1], reverse=True)
         )
 
         return frequencies
