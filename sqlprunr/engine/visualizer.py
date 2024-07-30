@@ -1,6 +1,8 @@
+import typing
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+from sqlprunr.data.generic import Database
 from sqlprunr.data.query_data import Frequencies
 
 
@@ -46,3 +48,48 @@ def visualize_frequencies(
     plt.tight_layout()
     if savefig:
         plt.savefig("frequencies.png")
+
+
+def visualize_structure(databases: typing.List[Database]):
+        from graphviz import Digraph
+
+        dot = Digraph(comment="Database Schema")
+
+        for db in databases:
+            db_id = f"db_{db.name}"
+            dot.node(db_id, db.name, shape="box", style="filled", color="lightblue")
+
+            for schema in db.schemas:
+                schema_id = f"schema_{db.name}_{schema.name}"
+                dot.node(
+                    schema_id,
+                    schema.name,
+                    shape="box",
+                    style="filled",
+                    color="lightyellow",
+                )
+                dot.edge(db_id, schema_id)
+
+                for table in schema.tables:
+                    table_id = f"table_{db.name}_{schema.name}_{table.name}"
+                    dot.node(
+                        table_id,
+                        table.name,
+                        shape="box",
+                        style="filled",
+                        color="lightgreen",
+                    )
+                    dot.edge(schema_id, table_id)
+
+                    for column in table.columns:
+                        column_id = (
+                            f"column_{db.name}_{schema.name}_{table.name}_{column.name}"
+                        )
+                        dot.node(
+                            column_id,
+                            f"{column.name}\n({column.data_type})",
+                            shape="ellipse",
+                        )
+                        dot.edge(table_id, column_id)
+
+        return dot
