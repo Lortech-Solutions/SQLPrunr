@@ -1,4 +1,5 @@
 import typing
+import logging
 from sql_metadata import Parser
 from sqlprunr.data.generic import Database, Table, Column
 from sqlprunr.data.query_data import Frequencies, QueryData
@@ -34,16 +35,16 @@ def find_unused_tables(frequencies: Frequencies, database: Database) -> typing.L
     :param queries: List of queries
     :param database: Database schema
     """
-    used_tables = set(frequencies.tables.items())
+    used_tables = set(frequencies.tables.keys())
 
     unused_tables = []
     for schema in database.schemas:
         for table in schema.tables:
             if table.name not in used_tables:
-                print(f"Found unused table: {database.name}.{schema.name}.{table.name} ({len(table.columns) if table.columns else 0} columns)")
+                logging.warning(f"Found unused table: {database.name}.{schema.name}.{table.name} ({len(table.columns) if table.columns else 0} columns)")
                 unused_tables.append(table)
 
-    print(f"Keep in mind that these tables are not used in specified queries, but they might be used in other.")
-    print(f"Keep in mind that tables were checked only according to the selected database schema, check if specified queries were only executed in selected database area.")
+    logging.warning(f"Keep in mind that these tables are not used in specified queries, but they might be used in other.")
+    logging.warning(f"Keep in mind that tables were checked only according to the selected database schema, check if specified queries were only executed in selected database area.")
 
     return unused_tables
