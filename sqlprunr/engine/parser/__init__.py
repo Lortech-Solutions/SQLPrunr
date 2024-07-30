@@ -1,3 +1,3 @@
-from .snowflake import SnowflakeCSVTableParser
+from .snowflake import SnowflakeCSVTableParser, SnowflakeCSVData
 
-__all__ = ["SnowflakeCSVTableParser"]
+__all__ = ["SnowflakeCSVTableParser", "SnowflakeCSVData"]
