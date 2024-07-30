@@ -10,7 +10,11 @@ import big_o
 
 def gen_query_data(n: int) -> typing.List[QueryData]:
     columns = [f"column{i}" for i in range(n)]
-    return f"SELECT {', '.join(columns)} FROM db1.schema1.table1"
+    return QueryData(
+        QUERY_TEXT=f"SELECT {', '.join(columns)} FROM db1.schema1.table1",
+        START_TIME="2024-06-22 17:17:34.245 +0200",
+        END_TIME="2024-06-22 17:17:34.565 +0200"
+    )
 
 
 @pytest.fixture
@@ -19,7 +23,7 @@ def rtest_queries_data():
         query = f.read()
 
     reader = csv.DictReader(io.StringIO(query.strip()))
-    data = [row['QUERY_TEXT'] for row in reader]
+    data = [QueryData(**row) for row in reader]
     
     return data
 

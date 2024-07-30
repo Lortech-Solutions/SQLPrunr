@@ -1,9 +1,13 @@
 import pytest
 from sqlprunr.engine.analyzer import analyze_query, find_unused_tables
-from sqlprunr.data.query_data import Frequencies
+from sqlprunr.data.query_data import Frequencies, QueryData
 
 def test_analyze_query(benchmark):
-    query = "SELECT column1, column2 FROM table1"
+    query = QueryData(
+        QUERY_TEXT="SELECT column1, column2 FROM table1",
+        START_TIME="2024-06-22 17:17:34.245 +0200",
+        END_TIME="2024-06-22 17:17:34.565 +0200"
+    )
     
     def analyze():
         return analyze_query(query)

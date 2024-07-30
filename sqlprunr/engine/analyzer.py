@@ -5,17 +5,20 @@ from sql_metadata import Parser
 from sqlprunr.data.generic import Database, Table
 from sqlprunr.data.query_data import Frequencies, QueryData
 
+from functools import lru_cache
+
 
 def clean_query(query: str) -> str:
     return query.strip().replace("\n", " ")
 
-
-def analyze_query(query: str, *, execution_time: int = 0) -> dict:
+# @lru_cache()
+def analyze_query(query_data: QueryData, *, execution_time: int = 0) -> dict:
     """
     Analyze the query and return the dimensions
 
     :param query: Query to analyze
     """
+    query = query_data.QUERY_TEXT
     if query.count(";") > 1:
         raise ValueError("Only one query per input is supported.")
 
@@ -46,7 +49,7 @@ def find_unused_tables(
     for schema in database.schemas:
         for table in schema.tables:
             if table.name not in used_tables:
-                logging.warning(
+                logging.debug(
                     f"Found unused table: {database.name}.{schema.name}.{table.name} ({len(table.columns) if table.columns else 0} columns)"
                 )
                 unused_tables.append(table)
@@ -79,7 +82,7 @@ def get_frequencies(
     for query in queries:
         try:
             z = analyze_query(query.QUERY_TEXT, execution_time=0)
-        except (ValueError, IndexError) as e:
+        except (ValueError, IndexError):
             continue
 
         tables.extend(z["tables"])
