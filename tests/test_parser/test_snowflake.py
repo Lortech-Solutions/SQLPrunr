@@ -32,7 +32,7 @@ def csv_data():
         ),
     ]
 
-def test_parse_table(parser, csv_data, benchmark):
+def test_snowflake_parse_table(parser, csv_data, benchmark):
     def parse_data():
         return parser.parse_table(csv_data)
     
