@@ -1,11 +1,11 @@
 import csv
 import io
 import typing
-
 import pytest
+import big_o
+
 from sqlprunr.data.query_data import QueryData
 from sqlprunr.engine.analyzer import analyze_query
-import big_o
 
 
 def gen_query_data(n: int) -> typing.List[QueryData]:
