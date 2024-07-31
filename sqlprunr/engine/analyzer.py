@@ -83,7 +83,7 @@ def get_frequencies(
     columns = []
     for query in queries:
         try:
-            z = analyze_query(query.QUERY_TEXT, execution_time=0)
+            z = analyze_query(query, execution_time=0)
         except (ValueError, IndexError):
             continue
 
