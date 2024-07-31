@@ -11,8 +11,9 @@ on:
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
+    env:
+      CI: true
 
     strategy:
       matrix:
@@ -29,4 +30,4 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Run tests
-      run: python -m pytest tests/
+      run: python -m pytest .

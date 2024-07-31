@@ -1,5 +1,6 @@
 import csv
 import io
+import os
 import typing
 import pytest
 import big_o
@@ -35,6 +36,8 @@ def rtest_database():
     return data
 
 
+@pytest.mark.skipif(os.getenv("CI", False),
+                    reason="Cannot run on CI/CD due to the use of prohibited real data in a test case.")
 def test_snowflake_parser_notation(parser, rtest_database, capsys):
     def data_generator(n):
         return rtest_database[:n]
