@@ -1,5 +1,6 @@
 import csv
 import io
+import os
 import typing
 import pytest
 import big_o
@@ -39,6 +40,8 @@ def analyze_query_wrapper(query: str):
         return None
 
 
+@pytest.mark.skipif(os.getenv("CI", False),
+                    reason="Cannot run on CI/CD due to the use of prohibited real data in a test case.")
 def test_analyze_queries_notation(rtest_queries_data, capsys):
     best, others = big_o.big_o(
         analyze_query_wrapper,
@@ -52,6 +55,8 @@ def test_analyze_queries_notation(rtest_queries_data, capsys):
             + big_o.reports.big_o_report(best, others)
         )
 
+
+def test_analyze_queries_notation_for_fake_data(capsys):
     MAX_N = 100
     best, others = big_o.big_o(
         analyze_query_wrapper, gen_query_data, min_n=1, max_n=MAX_N
