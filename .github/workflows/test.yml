@@ -12,8 +12,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      CI: ${{ true }}
 
     strategy:
       matrix:

@@ -40,7 +40,7 @@ def analyze_query_wrapper(query: str):
         return None
 
 
-@pytest.mark.skipif(os.getenv("CI", False),
+@pytest.mark.skipif(os.getenv("GITHUB_ACTIONS", "false") == "true"
                     reason="Cannot run on CI/CD due to the use of prohibited real data in a test case.")
 def test_analyze_queries_notation(rtest_queries_data, capsys):
     best, others = big_o.big_o(
