@@ -2,14 +2,16 @@ from datetime import datetime
 import typing
 import logging
 from sql_metadata import Parser
+
 from sqlprunr.data.generic import Database, Table
 from sqlprunr.data.query_data import Frequencies, QueryData
 
-from functools import lru_cache
+# from functools import lru_cache
 
 
 def clean_query(query: str) -> str:
     return query.strip().replace("\n", " ")
+
 
 # @lru_cache()
 def analyze_query(query_data: QueryData, *, execution_time: int = 0) -> dict:
@@ -55,10 +57,10 @@ def find_unused_tables(
                 unused_tables.append(table)
 
     logging.warning(
-        f"Keep in mind that these tables are not used in specified queries, but they might be used in other."
+        "Keep in mind that these tables are not used in specified queries, but they might be used in other."
     )
     logging.warning(
-        f"Keep in mind that tables were checked only according to the selected database schema, check if specified queries were only executed in selected database area."
+        "Keep in mind that tables were checked only according to the selected database schema, check if specified queries were only executed in selected database area."
     )
 
     return unused_tables
@@ -109,21 +111,21 @@ def get_frequencies(
 
 
 def get_time_spent(queries: typing.List[QueryData]):
-        """
-        Get the time spent on each query.
+    """
+    Get the time spent on each query.
 
-        :param queries: List of queries to analyze
-        """
-        time_spent = {}
+    :param queries: List of queries to analyze
+    """
+    time_spent = {}
 
-        for query in queries:
-            start_time = datetime.fromisoformat(query.START_TIME)
-            end_time = datetime.fromisoformat(query.END_TIME)
+    for query in queries:
+        start_time = datetime.fromisoformat(query.START_TIME)
+        end_time = datetime.fromisoformat(query.END_TIME)
 
-            time_spent[query.QUERY_TEXT] = (end_time - start_time).total_seconds()
+        time_spent[query.QUERY_TEXT] = (end_time - start_time).total_seconds()
 
-        sorted_time_spent = dict(
-            sorted(time_spent.items(), key=lambda item: item[1], reverse=True)
-        )
+    sorted_time_spent = dict(
+        sorted(time_spent.items(), key=lambda item: item[1], reverse=True)
+    )
 
-        return sorted_time_spent
+    return sorted_time_spent

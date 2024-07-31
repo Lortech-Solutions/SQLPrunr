@@ -36,7 +36,7 @@ def visualize_frequencies(
 
     if show_queries:
         ax3 = axes[2] if show_tables and show_columns else axes[0]
-        
+
         sns.barplot(
             x=list(frequencies.queries.values()), y=list(frequencies.queries.keys()), ax=ax3
         )
@@ -51,45 +51,45 @@ def visualize_frequencies(
 
 
 def visualize_structure(databases: typing.List[Database]):
-        from graphviz import Digraph
+    from graphviz import Digraph
 
-        dot = Digraph(comment="Database Schema")
+    dot = Digraph(comment="Database Schema")
 
-        for db in databases:
-            db_id = f"db_{db.name}"
-            dot.node(db_id, db.name, shape="box", style="filled", color="lightblue")
+    for db in databases:
+        db_id = f"db_{db.name}"
+        dot.node(db_id, db.name, shape="box", style="filled", color="lightblue")
 
-            for schema in db.schemas:
-                schema_id = f"schema_{db.name}_{schema.name}"
+        for schema in db.schemas:
+            schema_id = f"schema_{db.name}_{schema.name}"
+            dot.node(
+                schema_id,
+                schema.name,
+                shape="box",
+                style="filled",
+                color="lightyellow",
+            )
+            dot.edge(db_id, schema_id)
+
+            for table in schema.tables:
+                table_id = f"table_{db.name}_{schema.name}_{table.name}"
                 dot.node(
-                    schema_id,
-                    schema.name,
+                    table_id,
+                    table.name,
                     shape="box",
                     style="filled",
-                    color="lightyellow",
+                    color="lightgreen",
                 )
-                dot.edge(db_id, schema_id)
+                dot.edge(schema_id, table_id)
 
-                for table in schema.tables:
-                    table_id = f"table_{db.name}_{schema.name}_{table.name}"
-                    dot.node(
-                        table_id,
-                        table.name,
-                        shape="box",
-                        style="filled",
-                        color="lightgreen",
+                for column in table.columns:
+                    column_id = (
+                        f"column_{db.name}_{schema.name}_{table.name}_{column.name}"
                     )
-                    dot.edge(schema_id, table_id)
+                    dot.node(
+                        column_id,
+                        f"{column.name}\n({column.data_type})",
+                        shape="ellipse",
+                    )
+                    dot.edge(table_id, column_id)
 
-                    for column in table.columns:
-                        column_id = (
-                            f"column_{db.name}_{schema.name}_{table.name}_{column.name}"
-                        )
-                        dot.node(
-                            column_id,
-                            f"{column.name}\n({column.data_type})",
-                            shape="ellipse",
-                        )
-                        dot.edge(table_id, column_id)
-
-        return dot
+    return dot

@@ -10,6 +10,7 @@ class Frequencies:
     def __hash__(self) -> int:
         return hash(self.tables) + hash(self.columns) + hash(self.queries)
 
+
 @dataclass
 class QueryData:
     QUERY_TEXT: str

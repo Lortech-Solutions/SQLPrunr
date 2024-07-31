@@ -1,12 +1,8 @@
 from dataclasses import dataclass
-from datetime import datetime
 import typing
 import logging
 
 from sqlprunr.data.generic import Column, Database, Schema, Table
-
-from sqlprunr.data.query_data import Frequencies, QueryData
-from sqlprunr.engine.analyzer import analyze_query
 from sqlprunr.engine.parser.base import AbstractTableParser
 
 
