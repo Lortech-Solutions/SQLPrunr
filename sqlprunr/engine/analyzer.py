@@ -79,20 +79,22 @@ def get_frequencies(
     :param tables: Whether to analyze tables
     :param columns: Whether to analyze columns
     """
-    tables = []
-    columns = []
+    table_list = []
+    column_list = []
     for query in queries:
         try:
             z = analyze_query(query, execution_time=0)
         except (ValueError, IndexError):
             continue
 
-        tables.extend(z["tables"])
-        columns.extend(z["columns"])
+        if tables:
+            table_list.extend(z["tables"])
+        if columns:
+            column_list.extend(z["columns"])
 
     frequencies = Frequencies(
-        tables={table: tables.count(table) for table in set(tables)},
-        columns={column: columns.count(column) for column in set(columns)},
+        tables={table: table_list.count(table) for table in set(table_list)},
+        columns={column: column_list.count(column) for column in set(column_list)},
         queries={query.QUERY_TEXT: queries.count(query) for query in set(queries)},
     )
 

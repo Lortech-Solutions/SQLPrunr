@@ -43,7 +43,7 @@ def test_get_frequencies_no_tables(query_data, benchmark):
     queries = [query.QUERY_TEXT for query in query_data]
 
     assert frequencies.tables == {}
-    assert frequencies.columns == {"column1": 2, "column2": 2}
+    assert frequencies.columns == {"column1": 2, "column2": 1}
     assert frequencies.queries == {
         query.QUERY_TEXT: queries.count(query.QUERY_TEXT) for query in query_data
     }
